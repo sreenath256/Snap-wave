@@ -1,4 +1,22 @@
+import mongoose from "mongoose";
 import User from "../models/User.js";
+
+export const getSuggestUser = async (req, res) => {
+  try {
+    const excludedUserId = req.params.id;
+
+    // Fetch 5 random users excluding the specified user
+    const randomUsers = await User.aggregate([
+      { $match: { _id: { $ne: mongoose.Types.ObjectId(excludedUserId) } } }, // Exclude the specific user
+      { $sample: { size: 5 } } // Randomly sample 5 documents
+    ]);
+
+    res.json(randomUsers);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
 
 /* READ */
 export const getUser = async (req, res) => {
