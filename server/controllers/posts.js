@@ -5,15 +5,18 @@ import User from "../models/User.js";
 /* CREATE */
 export const createPost = async (req, res) => {
   try {
-    const { userId, description, picturePath } = req.body;
+    const { userId, description, location } = req.body;
     const user = await User.findById(userId);
+    if (!user) {
+      res.status(409).json({ message: "User not found" });
+    }
+    const picturePath = `/assets/${req.file.filename}`;
+
     const newPost = new Post({
       userId,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      location: user.location,
+
+      location,
       description,
-      userPicturePath: user.picturePath,
       picturePath,
       likes: {},
       comments: [],
@@ -29,22 +32,27 @@ export const createPost = async (req, res) => {
 
 /* READ */
 
-
 export const getFeedPosts = async (req, res) => {
   try {
+    console.log("From getfeed posts");
     const posts = await Post.find()
       .populate({
-        path: 'comments',
+        path: "userId", // Populate the userId in the Post model
+        select: "firstName lastName picturePath", // Adjust fields as needed
+      })
+      .populate({
+        path: "comments", // Populate the comments field
         populate: {
-          path: 'userId',
-          model: 'User',
-          select: 'firstName lastName picturePath', // Adjust as needed
+          path: "userId", // Populate the userId inside each comment
+          select: "firstName lastName picturePath", // Adjust fields as needed
         },
-      });
+      })
+      .sort({ createdAt: -1 })
+      .exec();
 
     res.status(200).json(posts);
   } catch (err) {
-    console.error('Error retrieving posts:', err);
+    console.error("Error retrieving posts:", err);
     res.status(404).json({ message: err.message });
   }
 };
@@ -52,8 +60,20 @@ export const getFeedPosts = async (req, res) => {
 export const getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
-    const post = await Post.find({ userId });
-    res.status(200).json(post);
+    const post = await Post.find({userId})
+    .populate({
+      path: "userId", // Populate the userId in the Post model
+      select: "firstName lastName picturePath", // Adjust fields as needed
+    })
+    .populate({
+      path: "comments", // Populate the comments field
+      populate: {
+        path: "userId", // Populate the userId inside each comment
+        select: "firstName lastName picturePath", // Adjust fields as needed
+      },
+    })
+    .sort({ createdAt: -1 })
+    .exec();    res.status(200).json(post);
   } catch (err) {
     res.status(404).json({ message: err.message });
   }
@@ -103,22 +123,24 @@ export const createComment = async (req, res) => {
       { $push: { comments: savedComment._id } },
       { new: true }
     ).populate({
-      path: 'comments',
+      path: "comments",
       populate: {
-        path: 'userId',
-        model: 'User',
-        select: 'firstName lastName', // Adjust as needed
+        path: "userId",
+        model: "User",
+        select: "firstName lastName", // Adjust as needed
       },
     });
 
     if (!post) {
-      return res.status(404).json({ message: 'Post not found' });
+      return res.status(404).json({ message: "Post not found" });
     }
-     // Find and return the newly added comment with populated user details
-     const populatedComment = await Comment.findById(savedComment._id).populate('userId', 'firstName lastName picturePath');
+    // Find and return the newly added comment with populated user details
+    const populatedComment = await Comment.findById(savedComment._id).populate(
+      "userId",
+      "firstName lastName picturePath"
+    );
 
-     res.status(200).json({ post, newComment: populatedComment });
-
+    res.status(200).json({ post, newComment: populatedComment });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

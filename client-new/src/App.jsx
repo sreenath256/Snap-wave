@@ -9,6 +9,9 @@ import Home from "./pages/home/Home";
 import { useDispatch, useSelector } from "react-redux";
 import { setError, setLoading, setUser } from "./redux/userSlice";
 import api from "./utils/axios";
+import CreatePost from "./pages/CreatePost/CreatePost";
+import Loading from "./components/Loading/Loading";
+import ProfilePage from "./pages/Profile/Profile";
 
 function App() {
  
@@ -18,8 +21,22 @@ function App() {
   const isLoading = useSelector((state) => state.user.isLoading);
   const error = useSelector((state) => state.user.error);
   const token = useSelector((state) => state.user.token);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Get initial dark mode state from local storage
+    const savedPreference = localStorage.getItem('darkMode');
+    return savedPreference === 'true' || false;
+  });
 
   useEffect(() => {
+
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Save dark mode preference to local storage
+    localStorage.setItem('darkMode', darkMode);
+
     if (!userId) return;
 
     const fetchUserDetails = async () => {
@@ -39,7 +56,7 @@ function App() {
   }, [dispatch, userId]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loading/>;
   }
 
   if (error) {
@@ -56,6 +73,8 @@ function App() {
          
             <Route element={<RootLayout />}>
               <Route index path="/home" element={<Home />} />
+              <Route path="/create-post" element={<CreatePost />} />
+              <Route path="/profile/:id" element={<ProfilePage />} />
               {/* <Route  path="*" element={<Home />} /> */}
               <Route path="*" element={<Navigate to="/home" />} />
 
@@ -63,10 +82,11 @@ function App() {
          
         ) : (
           
-            <Route element={<AuthLayout />}>
+          <Route element={<AuthLayout />}>
 
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/sign-in" element={<SignIn />} />
+              {/* <Route path="/create-post" element={<CreatePost />} /> */}
               <Route path="*" element={<Navigate to="/sign-up" />} />
             </Route>
         

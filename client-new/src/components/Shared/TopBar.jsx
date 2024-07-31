@@ -6,15 +6,12 @@ import { FaMoon, FaSun } from "react-icons/fa";
 
 const TopBar = () => {
   const dispatch = useDispatch();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Get initial dark mode state from local storage
+    const savedPreference = localStorage.getItem('darkMode');
+    return savedPreference === 'true' || false;
+  });
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
 
   const handleLogout = () => {
     dispatch(clearUser());
@@ -22,6 +19,13 @@ const TopBar = () => {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Save dark mode preference to local storage
+    localStorage.setItem('darkMode', darkMode);
   };
 
   return (
@@ -36,14 +40,11 @@ const TopBar = () => {
         </Link>
 
         <div className="flex items-center space-x-4">
-         
-
           <button
             className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-full transition-colors flex items-center"
             onClick={handleLogout}
           >
             <LogoutSvg />
-        
           </button>
 
           <button
