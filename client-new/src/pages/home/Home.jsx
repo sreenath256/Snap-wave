@@ -2,12 +2,18 @@ import React, { useEffect, useState } from "react";
 import Post from "../../components/Cards/Post";
 import api from "../../utils/axios";
 import { FaSpinner } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const Home = () => {
   const [postList, setPostList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const refresh = useSelector((state) => state.user.refresh);
 
+  console.log(refresh);
+  
+  
+  
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -21,7 +27,7 @@ const Home = () => {
       }
     };
     fetchPosts();
-  }, []);
+  }, [refresh]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">

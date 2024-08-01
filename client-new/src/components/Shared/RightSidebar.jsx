@@ -1,53 +1,80 @@
 import React, { useEffect, useState } from "react";
-import { FaUserPlus } from "react-icons/fa";
+import { FaUserPlus, FaDice, FaSpinner } from "react-icons/fa";
 import api from "../../utils/axios";
 import { baseImgUrl } from "../../constance";
-
-const PeopleCard = ({ profileImage, name, username }) => (
-
- 
-  <div className="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-    <img src={profileImage} alt={name} className="w-12 h-12 rounded-full object-cover" />
-    <div className="ml-3 flex-grow">
-      <h3 className="font-semibold text-gray-800 dark:text-white">{name}</h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400">@{username}</p>
-    </div>
-    <button className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200">
-      <FaUserPlus size={20} />
-    </button>
-  </div>
-);
+import { PeopleCard } from "../Cards/PeopleCard";
 
 const RightSidebar = () => {
-  const [peopleList,setPeopleList]=useState([])
-  useEffect(()=>{
+  const [peopleList, setPeopleList] = useState([]);
+  const [isShuffling, setIsShuffling] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-
-        const ourUserId = localStorage.getItem('user_id')
+        setLoading(true);
+        const ourUserId = localStorage.getItem("user_id");
         const response = await api.get(`/users/suggest-user/${ourUserId}`);
-        setPeopleList(response.data)
-      console.log("From right side bar",response);
+        setPeopleList(response.data);
+        console.log("From right sidebar", response);
       } catch (err) {
+        setError("Failed to load users. Please try again later.");
         console.log(err);
-      } 
+      } finally {
+        setLoading(false);
+      }
     };
-
     fetchUserDetails();
-  },[])
+  }, [refresh]);
+
+  const handleShuffle = () => {
+    setIsShuffling(true);
+    setRefresh(!refresh);
+    setTimeout(() => {
+      setIsShuffling(false);
+    }, 500);
+  };
+
   return (
-    <div className="w-full h-full bg-gray-100 dark:bg-gray-900 p-6 overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">Find People</h2>
-      <div className="space-y-4">
-        {peopleList.map((person, index) => (
-          <PeopleCard
-            key={index}
-            profileImage={baseImgUrl+person.picturePath}
-            name={person.firstName +" "+ person.lastName}
-            username={person.firstName}
-          />
-        ))}
+    <div className="w-full h-full bg-white dark:bg-gray-800 p-6 overflow-y-auto flex flex-col">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+        Find People
+      </h2>
+      <div className="space-y-4 flex-grow">
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <FaSpinner className="animate-spin text-4xl text-blue-500 dark:text-blue-400" />
+          </div>
+        ) : error ? (
+          <div className="text-center text-red-600 dark:text-red-400 p-4 bg-red-100 dark:bg-red-900 rounded-lg">
+            {error}
+          </div>
+        ) : peopleList.length === 0 ? (
+          <div className="text-center text-gray-600 dark:text-gray-300">
+            No users to display suggestions here!
+          </div>
+        ) : (
+          peopleList.map((person, index) => (
+            <PeopleCard
+              key={person.id || index}
+              profileImage={baseImgUrl + person.picturePath}
+              name={person.firstName + " " + person.lastName}
+              username={person.firstName}
+              id={person._id}
+            />
+          ))
+        )}
       </div>
+      <button
+        onClick={handleShuffle}
+        className="mt-6 flex items-center justify-center space-x-2 w-full  dark:text-white py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors duration-200"
+        disabled={isShuffling}
+      >
+        <FaDice className={`text-2xl ${isShuffling ? "animate-spin" : ""}`} />
+        <span className="font-medium">Shuffle Suggestions</span>
+      </button>
     </div>
   );
 };

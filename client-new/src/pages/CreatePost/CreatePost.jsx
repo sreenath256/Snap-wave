@@ -5,14 +5,14 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import toast from "react-hot-toast";
 import api from "../../utils/axios";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const [image, setImage] = useState(null);
-  const [picture,setPicture]=useState(null)
+  const [picture, setPicture] = useState(null);
 
-
-
+  const navigate=useNavigate();
+  
   const schema = yup.object().shape({
     description: yup.string().required("Description is required"),
     location: yup.string().required("Location is required"),
@@ -32,25 +32,24 @@ const CreatePost = () => {
     //       value &&
     //     ["image/jpg", "image/jpeg", "image/png"].includes(value[0]?.type)
     //   ),
-    });
-    
-    const {
-      register,
-      handleSubmit,
-      formState: { errors },
-      setValue,
-      watch
-    } = useForm({
-      resolver: yupResolver(schema),
-    });
-    
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
+
   const onSubmit = async (data) => {
     try {
-      const userId = localStorage.getItem('user_id')
+      const userId = localStorage.getItem("user_id");
       const combinedData = { ...data, picture, userId };
-       console.log(combinedData)
-       
-      
+      console.log(combinedData);
+
       // Send a POST request with Axios
       const response = await api.post("posts", combinedData, {
         headers: {
@@ -58,13 +57,10 @@ const CreatePost = () => {
         },
       });
       console.log(response);
-      
-      // Handle the response as needed
+
       toast.success("Post uploaded successful!");
-  
-     
-        Navigate("/home");
-      
+
+      navigate("/home");
     } catch (error) {
       toast.error(error);
       console.error("Error during form submission:", error);
@@ -73,7 +69,7 @@ const CreatePost = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setPicture(file)
+    setPicture(file);
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -127,13 +123,10 @@ const CreatePost = () => {
                   <p className="text-gray-500 dark:text-gray-400">
                     Click to upload an image
                   </p>
-                  
                 </div>
               )}
-              
             </div>
-            <p className="w-full h-5 text-xs pt-2 text-red-500">
-                  </p>
+            <p className="w-full h-5 text-xs pt-2 text-red-500"></p>
           </label>
           <input
             id="image-upload"
@@ -142,19 +135,17 @@ const CreatePost = () => {
             className="hidden"
             onChange={handleImageChange}
           />
-          
         </div>
         <div className="mb-4">
           <textarea
             placeholder="Write a caption..."
             className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
             rows="3"
-
             {...register("description")}
           ></textarea>
-           <p className="w-full h-5 text-xs text-red-500">
-          {errors.description?.message}
-        </p>
+          <p className="w-full h-5 text-xs text-red-500">
+            {errors.description?.message}
+          </p>
         </div>
         <div className="mb-4 flex items-center">
           <FaMapMarkerAlt className="text-gray-400 dark:text-gray-500 mr-2" />
@@ -165,9 +156,9 @@ const CreatePost = () => {
             {...register("location")}
           />
         </div>
-            <p className="w-full h-5 text-xs text-red-500">
-            {errors.location?.message}
-          </p>
+        <p className="w-full h-5 text-xs text-red-500">
+          {errors.location?.message}
+        </p>
         <button
           type="submit"
           className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition-colors duration-200"

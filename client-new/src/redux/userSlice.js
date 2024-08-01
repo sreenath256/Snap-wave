@@ -3,9 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: null,
   userId: null,
-  token:null,
+  token: null,
   isLoading: true,
   error: null,
+  refresh:false,
 };
 
 const userSlice = createSlice({
@@ -23,10 +24,10 @@ const userSlice = createSlice({
     },
     clearUser: (state) => {
       state.user = null;
-      state.user=null;
-      state.token=null;
-      localStorage.removeItem('user_id');
-      localStorage.removeItem('token');
+      state.user = null;
+      state.token = null;
+      localStorage.removeItem("user_id");
+      localStorage.removeItem("token");
     },
     setLoading: (state, action) => {
       state.isLoading = action.payload;
@@ -37,9 +38,20 @@ const userSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     },
+    setRefresh:(state)=>{
+      state.refresh= !state.refresh;
+    }
+   
   },
 });
 
-export const { setUser, setUserId, clearUser, setLoading, setError, setToken } =
-  userSlice.actions;
+export const {
+  setUser,
+  setUserId,
+  clearUser,
+  setLoading,
+  setError,
+  setToken,
+  setRefresh,
+} = userSlice.actions;
 export default userSlice.reducer;

@@ -12,6 +12,7 @@ import api from "./utils/axios";
 import CreatePost from "./pages/CreatePost/CreatePost";
 import Loading from "./components/Loading/Loading";
 import ProfilePage from "./pages/Profile/Profile";
+import PeopleList from "./pages/PeopleList/PeopleList";
 
 function App() {
  
@@ -75,6 +76,7 @@ function App() {
               <Route index path="/home" element={<Home />} />
               <Route path="/create-post" element={<CreatePost />} />
               <Route path="/profile/:id" element={<ProfilePage />} />
+              <Route path="/peoples" element={<PeopleList />} />
               {/* <Route  path="*" element={<Home />} /> */}
               <Route path="*" element={<Navigate to="/home" />} />
 

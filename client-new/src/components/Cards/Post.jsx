@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { FaHeart, FaBookmark, FaComment, FaPaperPlane } from "react-icons/fa";
+import {
+  FaHeart,
+  FaBookmark,
+  FaComment,
+  FaPaperPlane,
+  FaUserPlus,
+  FaUserCheck,
+} from "react-icons/fa";
 import { baseImgUrl } from "../../constance";
 import { formatTimestamp } from "../../utils/formateTimeStamp";
 import api from "../../utils/axios";
 import CommentCard from "../Comment/CommentCard";
 import { Link } from "react-router-dom";
+import { followUser } from "../../utils/followUser";
+import { useDispatch } from "react-redux";
+import { setRefresh } from "../../redux/userSlice";
 
 const Post = ({ post }) => {
   const { userId, createdAt, location, picturePath, description } = post;
   const [user, setUser] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
   const [showComments, setShowComments] = useState(false);
@@ -17,19 +28,23 @@ const Post = ({ post }) => {
   const [commentInput, setCommentInput] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    console.log(post);
+    if (post.userId.followers.includes(localStorage.getItem("user_id"))) {
+      setIsFollowing(true);
+    }
 
     setUser(post.userId);
     setComments(post.comments);
     setLikeCount(Object.keys(post.likes).length);
     setCommentCount(Object.keys(post.comments).length);
-    setIsLiked(post.likes.hasOwnProperty(userId));
-  }, []);
+    setIsLiked(post.likes.hasOwnProperty(localStorage.getItem("user_id")));
+  }, [post]);
 
   const handleLike = () => {
     api
-      .patch(`/posts/${post._id}/like`, { userId })
+      .patch(`/posts/${post._id}/like`, { userId: localStorage.getItem("user_id") })
       .then((res) => console.log(res));
     setIsLiked(!isLiked);
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
@@ -63,10 +78,43 @@ const Post = ({ post }) => {
     setIsExpanded(!isExpanded);
   };
 
-  return (
-    <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto">
-      <Link to={`/profile/${post.userId._id}`}>
+  const handleFollowToggle = async () => {
+    const friendId = user._id;
+    try {
+      const res = await followUser({ friendId });
+      if (res) {
+        setIsFollowing(!isFollowing);
+        dispatch(setRefresh());
+      }
+    } catch (error) {
+      console.error("Error toggling follow status:", error);
+    }
+  };
 
+  return (
+    <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto relative">
+      {userId._id !== localStorage.getItem("user_id") && (
+        <button
+          onClick={handleFollowToggle}
+          className={`absolute top-8 right-2 px-3 py-1 rounded-full text-sm font-medium ${
+            isFollowing
+              ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              : "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+          } transition-colors duration-200`}
+        >
+          {isFollowing ? (
+            <>
+              <FaUserCheck size={17} />
+            </>
+          ) : (
+            <>
+              <FaUserPlus size={17} />
+            </>
+          )}
+        </button>
+      )}
+
+      <Link to={`/profile/${post.userId._id}`}>
         <div className="flex items-center mb-4">
           <img
             src={
@@ -139,10 +187,8 @@ const Post = ({ post }) => {
         }`}
       >
         <div className="mb-4 max-h-40 overflow-y-auto">
-          {comments.map((comment) => (
-            <div key={comment.id}>
-              <CommentCard comment={comment} />
-            </div>
+          {comments.map((comment, index) => (
+            <CommentCard key={index} comment={comment} />
           ))}
         </div>
         <div className="flex items-center">

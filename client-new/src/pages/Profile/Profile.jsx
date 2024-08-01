@@ -38,7 +38,7 @@ const ProfilePage = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [id]);
 
   if (isLoading) {
     return <Loading />;
@@ -57,7 +57,8 @@ const ProfilePage = () => {
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div className="relative h-48 bg-blue-500">
           <img
-            src={user.coverPicture || "https://via.placeholder.com/1000x300"}
+           src={`${baseImgUrl}${user.coverPicture || user.picturePath}`}
+
             alt="Cover"
             className="w-full h-full object-cover"
           />

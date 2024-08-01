@@ -38,7 +38,7 @@ export const getFeedPosts = async (req, res) => {
     const posts = await Post.find()
       .populate({
         path: "userId", // Populate the userId in the Post model
-        select: "firstName lastName picturePath", // Adjust fields as needed
+        select: "firstName lastName picturePath followers following", // Adjust fields as needed
       })
       .populate({
         path: "comments", // Populate the comments field
@@ -63,7 +63,7 @@ export const getUserPosts = async (req, res) => {
     const post = await Post.find({userId})
     .populate({
       path: "userId", // Populate the userId in the Post model
-      select: "firstName lastName picturePath", // Adjust fields as needed
+      select: "firstName lastName picturePath followers following", // Adjust fields as needed
     })
     .populate({
       path: "comments", // Populate the comments field
