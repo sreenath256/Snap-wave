@@ -79,7 +79,7 @@ function App() {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/peoples" element={<PeopleList />} />
                 <Route path="/saved" element={<SavedPost />} />
-                {/* <Route  path="*" element={<Home />} /> */}
+                <Route  path="*" element={<Home />} />
                 {/* <Route path="*" element={<Navigate to="/home" />} /> */}
               </Route>
             </>

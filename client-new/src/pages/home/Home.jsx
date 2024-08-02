@@ -10,7 +10,6 @@ const Home = () => {
   const [error, setError] = useState(null);
   const refresh = useSelector((state) => state.user.refresh);
 
-  console.log(refresh);
   
   
   

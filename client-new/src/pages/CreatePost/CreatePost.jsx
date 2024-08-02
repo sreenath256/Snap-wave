@@ -48,7 +48,6 @@ const CreatePost = () => {
     try {
       const userId = localStorage.getItem("user_id");
       const combinedData = { ...data, picture, userId };
-      console.log(combinedData);
 
       // Send a POST request with Axios
       const response = await api.post("posts", combinedData, {
@@ -56,7 +55,6 @@ const CreatePost = () => {
           "Content-Type": "multipart/form-data", // Important for file uploads
         },
       });
-      console.log(response);
 
       toast.success("Post uploaded successful!");
 
@@ -83,15 +81,6 @@ const CreatePost = () => {
     setImage(null);
   };
 
-  const ahandleSubmit = (e) => {
-    e.preventDefault();
-    // Here you would typically send the post data to your API
-    console.log({ image, caption, location });
-    // Reset form after submission
-    setImage(null);
-    setCaption("");
-    setLocation("");
-  };
 
   return (
     <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto">

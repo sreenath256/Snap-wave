@@ -38,7 +38,6 @@ const Post = ({ post }) => {
     const fetchUser = async () => {
       const myUserId = localStorage.getItem("user_id");
       const response = await api.get(`/users/${myUserId}`);
-      console.log(response);
       if (response.data.savedPost.includes(post._id)) {
         setIsSaved(true);
       }
@@ -112,7 +111,6 @@ const Post = ({ post }) => {
       if(response){
         setIsSaved(!isSaved)
       }
-      console.log(response);
     } catch (err) {
       console.log(err);
     }

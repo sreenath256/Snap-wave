@@ -7,9 +7,9 @@ import Bottombar from "../components/Shared/Bottombar";
 const RootLayout = () => {
   return (
     <div className="flex flex-col h-screen">
+          <TopBar />
       <div className="flex flex-1 overflow-hidden">
         <aside className="hidden md:block w-64">
-          <TopBar />
           <LeftSidebar />
         </aside>
         <main className="flex-1 flex justify-center overflow-y-auto  bg-white dark:bg-gray-900 ">

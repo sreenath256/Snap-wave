@@ -11,7 +11,6 @@ const SavedPostsPage = () => {
       try {
         const userId = localStorage.getItem("user_id");
         const response = await api.get(`/users/${userId}/get-saved-post`);
-        console.log(response);
         setSavedPosts(response.data.savedPost);
       } catch (err) {
         console.error("Error fetching saved posts:", err);

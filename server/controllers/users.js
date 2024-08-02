@@ -46,7 +46,14 @@ export const getSuggestUser = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select("-password");
+    const user = await User.findById(id).select("-password").populate({
+      path: "followers", 
+      select: "firstName lastName picturePath followers", 
+    })
+    .populate({
+      path: "following", // Populate the comments field
+      select: "firstName lastName picturePath followers", 
+    })
     res.status(200).json(user);
   } catch (err) {
     res.status(404).json({ message: err.message });

@@ -10,13 +10,11 @@ const SearchPage = () => {
   const handleSearch = async (event) => {
     try {
       const name = event.target.value;
-      console.log(name);
       if (name != "") {
         const response = await api.get(`users/search/${name}`);
         setFilteredPeople(response.data);
         setSearchTerm(name);
 
-        console.log(filteredPeople);
       } else {
         setFilteredPeople([]);
       }

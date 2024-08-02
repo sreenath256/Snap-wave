@@ -16,7 +16,6 @@ const PeopleList = () => {
         setLoading(true);
         const ourUserId = localStorage.getItem("user_id");
         const response = await api.get(`/users/get-all-users/${ourUserId}`);
-        console.log("From people page", response);
         setPeopleList(response.data);
       } catch (err) {
         setError("Failed to load users. Please try again later.");

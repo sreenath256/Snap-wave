@@ -32,7 +32,6 @@ const SignInForm = () => {
       // Handle the response as needed
       toast.success("Login successful!");
       if (response) {
-        console.log("Response:", response.data);
         dispatch(setUserId(response.data.user._id));
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user_id', response.data.user._id);

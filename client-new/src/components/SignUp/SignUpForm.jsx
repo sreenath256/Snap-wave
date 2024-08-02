@@ -74,7 +74,6 @@ const SignUpForm = () => {
       // Handle the response as needed
       toast.success("Registration successful!");
       if (response) {
-        console.log("Response:", response.data);
         dispatch(setUserId(response.data.user._id));
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user_id', response.data.user._id);

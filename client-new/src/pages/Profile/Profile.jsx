@@ -11,6 +11,7 @@ import Loading from "../../components/Loading/Loading";
 import Post from "../../components/Cards/Post";
 import { baseImgUrl } from "../../constance";
 import { useParams } from "react-router-dom";
+import { PeopleCard } from "../../components/Cards/PeopleCard";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -21,12 +22,10 @@ const ProfilePage = () => {
   const { id } = useParams();
   useEffect(() => {
     const fetchUserData = async () => {
-        try {
+      try {
         setIsLoading(true);
-        
 
         const userResponse = await api.get(`/users/${id}`);
-        console.log("User = ", userResponse);
         const postsResponse = await api.get(`/posts/${id}/posts`);
         setUser(userResponse.data);
         setPosts(postsResponse.data);
@@ -57,8 +56,7 @@ const ProfilePage = () => {
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div className="relative h-48 bg-blue-500">
           <img
-           src={`${baseImgUrl}${user.coverPicture || user.picturePath}`}
-
+            src={`${baseImgUrl}${user.coverPicture || user.picturePath}`}
             alt="Cover"
             className="w-full h-full object-cover"
           />
@@ -140,13 +138,23 @@ const ProfilePage = () => {
           </button>
           <button
             className={`pb-2 px-4 ${
-              activeTab === "photos"
+              activeTab === "followers"
                 ? "border-b-2 border-blue-500 text-blue-500"
                 : "text-gray-600 dark:text-gray-400"
             }`}
-            onClick={() => setActiveTab("photos")}
+            onClick={() => setActiveTab("followers")}
           >
-            Photos
+            Followers
+          </button>
+          <button
+            className={`pb-2 px-4 ${
+              activeTab === "following"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-600 dark:text-gray-400"
+            }`}
+            onClick={() => setActiveTab("following")}
+          >
+            Following
           </button>
         </div>
 
@@ -158,18 +166,25 @@ const ProfilePage = () => {
           </div>
         )}
 
-        {activeTab === "photos" && (
-          <div className="grid grid-cols-3 gap-4">
-            {posts
-              .filter((post) => post.picturePath)
-              .map((post) => (
-                <img
-                  key={post._id}
-                  src={post.picturePath}
-                  alt="Post"
-                  className="w-full h-40 object-cover rounded-lg"
-                />
-              ))}
+        {activeTab === "followers" && (
+          <div className="space-y-4">
+            {
+              user.followers.map((follower)=>(
+                <PeopleCard key={follower._id} person={follower}/>
+                // console.log(follower)
+                
+              ))
+            }
+          </div>
+        )}{activeTab === "following" && (
+          <div className="space-y-4">
+            {
+              user.following.map((followee)=>(
+                <PeopleCard key={followee._id} person={followee}/>
+                // console.log(follower)
+                
+              ))
+            }
           </div>
         )}
       </div>
