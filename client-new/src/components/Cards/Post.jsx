@@ -20,6 +20,7 @@ const Post = ({ post }) => {
   const { userId, createdAt, location, picturePath, description } = post;
   const [user, setUser] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
@@ -34,7 +35,16 @@ const Post = ({ post }) => {
     if (post.userId.followers.includes(localStorage.getItem("user_id"))) {
       setIsFollowing(true);
     }
+    const fetchUser = async () => {
+      const myUserId = localStorage.getItem("user_id");
+      const response = await api.get(`/users/${myUserId}`);
+      console.log(response);
+      if (response.data.savedPost.includes(post._id)) {
+        setIsSaved(true);
+      }
 
+    };
+    fetchUser();
     setUser(post.userId);
     setComments(post.comments);
     setLikeCount(Object.keys(post.likes).length);
@@ -44,7 +54,9 @@ const Post = ({ post }) => {
 
   const handleLike = () => {
     api
-      .patch(`/posts/${post._id}/like`, { userId: localStorage.getItem("user_id") })
+      .patch(`/posts/${post._id}/like`, {
+        userId: localStorage.getItem("user_id"),
+      })
       .then((res) => console.log(res));
     setIsLiked(!isLiked);
     setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
@@ -88,6 +100,21 @@ const Post = ({ post }) => {
       }
     } catch (error) {
       console.error("Error toggling follow status:", error);
+    }
+  };
+
+  const handleSavePost = async () => {
+    try {
+      const userId = localStorage.getItem("user_id");
+      const postId = post._id;
+
+      const response = await api.post("users/save-post", { userId, postId });
+      if(response){
+        setIsSaved(!isSaved)
+      }
+      console.log(response);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -176,7 +203,12 @@ const Post = ({ post }) => {
             <span>{commentCount}</span>
           </button>
         </div>
-        <button className="text-gray-500 dark:text-gray-400 hover:text-yellow-500 transition-colors duration-200">
+        <button
+          onClick={handleSavePost}
+          className={`transition-colors duration-200 ${
+            isSaved ? "text-yellow-600" : "text-gray-500 dark:text-gray-400 hover:text-yellow-500"
+          } `  }
+        >
           <FaBookmark className="text-xl" />
         </button>
       </div>

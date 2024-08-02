@@ -13,30 +13,30 @@ import CreatePost from "./pages/CreatePost/CreatePost";
 import Loading from "./components/Loading/Loading";
 import ProfilePage from "./pages/Profile/Profile";
 import PeopleList from "./pages/PeopleList/PeopleList";
+import SearchPage from "./pages/Search/SearchPage";
+import SavedPost from "./pages/SavedPost/SavedPost";
 
 function App() {
- 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const userId = localStorage.getItem('user_id')
+  const userId = localStorage.getItem("user_id");
   const isLoading = useSelector((state) => state.user.isLoading);
   const error = useSelector((state) => state.user.error);
   const token = useSelector((state) => state.user.token);
   const [darkMode, setDarkMode] = useState(() => {
     // Get initial dark mode state from local storage
-    const savedPreference = localStorage.getItem('darkMode');
-    return savedPreference === 'true' || false;
+    const savedPreference = localStorage.getItem("darkMode");
+    return savedPreference === "true" || false;
   });
 
   useEffect(() => {
-
     if (darkMode) {
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
     // Save dark mode preference to local storage
-    localStorage.setItem('darkMode', darkMode);
+    localStorage.setItem("darkMode", darkMode);
 
     if (!userId) return;
 
@@ -44,7 +44,7 @@ function App() {
       dispatch(setLoading(true));
       try {
         const response = await api.get(`/users/${userId}`);
-      
+
         dispatch(setUser(response.data));
       } catch (err) {
         dispatch(setError(err.toString()));
@@ -57,7 +57,7 @@ function App() {
   }, [dispatch, userId]);
 
   if (isLoading) {
-    return <Loading/>;
+    return <Loading />;
   }
 
   if (error) {
@@ -69,31 +69,29 @@ function App() {
       <Toaster />
 
       <div className="mt-0">
-      <Routes>
-        {user ? (
-         
-            <Route element={<RootLayout />}>
-              <Route index path="/home" element={<Home />} />
-              <Route path="/create-post" element={<CreatePost />} />
-              <Route path="/profile/:id" element={<ProfilePage />} />
-              <Route path="/peoples" element={<PeopleList />} />
-              {/* <Route  path="*" element={<Home />} /> */}
-              <Route path="*" element={<Navigate to="/home" />} />
-
-            </Route>
-         
-        ) : (
-          
-          <Route element={<AuthLayout />}>
-
+        <Routes>
+          {user ? (
+            <>
+              <Route element={<RootLayout />}>
+                <Route index path="/home" element={<Home />} />
+                <Route path="/create-post" element={<CreatePost />} />
+                <Route path="/profile/:id" element={<ProfilePage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/peoples" element={<PeopleList />} />
+                <Route path="/saved" element={<SavedPost />} />
+                {/* <Route  path="*" element={<Home />} /> */}
+                {/* <Route path="*" element={<Navigate to="/home" />} /> */}
+              </Route>
+            </>
+          ) : (
+            <Route element={<AuthLayout />}>
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/sign-in" element={<SignIn />} />
               {/* <Route path="/create-post" element={<CreatePost />} /> */}
               <Route path="*" element={<Navigate to="/sign-up" />} />
             </Route>
-        
-        )}
-      </Routes>
+          )}
+        </Routes>
       </div>
     </div>
   );

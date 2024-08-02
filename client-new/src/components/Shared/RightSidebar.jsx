@@ -18,7 +18,6 @@ const RightSidebar = () => {
         const ourUserId = localStorage.getItem("user_id");
         const response = await api.get(`/users/suggest-user/${ourUserId}`);
         setPeopleList(response.data);
-        console.log("From right sidebar", response);
       } catch (err) {
         setError("Failed to load users. Please try again later.");
         console.log(err);
@@ -59,10 +58,7 @@ const RightSidebar = () => {
           peopleList.map((person, index) => (
             <PeopleCard
               key={person.id || index}
-              profileImage={baseImgUrl + person.picturePath}
-              name={person.firstName + " " + person.lastName}
-              username={person.firstName}
-              id={person._id}
+              person={person}
             />
           ))
         )}

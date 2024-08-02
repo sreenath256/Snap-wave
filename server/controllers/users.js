@@ -6,8 +6,9 @@ export const getAllUsers = async (req, res) => {
     const ourUserId = req.params.id;
 
     // Find the current user to get the list of users they are following
-    const users = await User.find({ _id: { $ne: mongoose.Types.ObjectId(ourUserId) } });
-
+    const users = await User.find({
+      _id: { $ne: mongoose.Types.ObjectId(ourUserId) },
+    });
 
     res.json(users);
   } catch (err) {
@@ -15,14 +16,16 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
-
 export const getSuggestUser = async (req, res) => {
   try {
     const ourUserId = req.params.id;
 
     // Find the current user to get the list of users they are following
-    const currentUser = await User.findById(ourUserId).populate('following', '_id');
-    const followingIds = currentUser.following.map(user => user._id);
+    const currentUser = await User.findById(ourUserId).populate(
+      "following",
+      "_id"
+    );
+    const followingIds = currentUser.following.map((user) => user._id);
 
     // Add the current user's ID to the list of IDs to exclude
     followingIds.push(mongoose.Types.ObjectId(ourUserId));
@@ -30,7 +33,7 @@ export const getSuggestUser = async (req, res) => {
     // Fetch 5 random users excluding the specified user and the users they follow
     const randomUsers = await User.aggregate([
       { $match: { _id: { $nin: followingIds } } }, // Exclude the specific user and users they follow
-      { $sample: { size: 5 } } // Randomly sample 5 documents
+      { $sample: { size: 5 } }, // Randomly sample 5 documents
     ]);
 
     res.json(randomUsers);
@@ -43,8 +46,26 @@ export const getSuggestUser = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select('-password');
+    const user = await User.findById(id).select("-password");
     res.status(200).json(user);
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    const query = {
+      $or: [
+        { firstName: new RegExp(name, "i") },
+        { lastName: new RegExp(name, "i") },
+      ],
+    };
+
+    const users = await User.find(query).select("-password");
+    res.status(200).json(users);
   } catch (err) {
     res.status(404).json({ message: err.message });
   }
@@ -68,6 +89,35 @@ export const getUserFriends = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+export const getSavedPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id)
+      .populate({
+        path: 'savedPost',
+        populate: [
+          {
+            path: 'userId',
+            select: 'firstName lastName picturePath followers',
+          },
+          {
+            path: 'comments',
+            populate: {
+              path: 'userId',
+              select: 'firstName lastName picturePath',
+            },
+          }
+        ]
+      });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /* UPDATE */
 export const addRemoveFollow = async (req, res) => {
@@ -77,12 +127,16 @@ export const addRemoveFollow = async (req, res) => {
     const friend = await User.findById(friendId);
 
     if (!user || !friend) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     if (user.following.includes(friendId)) {
-      user.following = user.following.filter((followingId) => followingId.toString() !== friendId);
-      friend.followers = friend.followers.filter((followerId) => followerId.toString() !== id);
+      user.following = user.following.filter(
+        (followingId) => followingId.toString() !== friendId
+      );
+      friend.followers = friend.followers.filter(
+        (followerId) => followerId.toString() !== id
+      );
     } else {
       user.following.push(friendId);
       friend.followers.push(id);
@@ -107,6 +161,33 @@ export const addRemoveFollow = async (req, res) => {
     );
 
     res.status(200).json(formattedFriends);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const savePost = async (req, res) => {
+  try {
+    const { postId, userId } = req.body;
+    const user = await User.findById(userId);
+    if (!user ) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.savedPost.includes(postId)) {
+      user.savedPost = user.savedPost.filter(
+        (savedPostid) => savedPostid.toString() !== postId
+      );
+      
+    } else {
+    
+      user.savedPost.push(postId);
+    }
+
+
+    await user.save();
+
+    res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -1,14 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { followUser } from "../../utils/followUser";
 import { FaUserCheck, FaUserPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { baseImgUrl } from "../../constance";
 
-export const PeopleCard = ({ id, profileImage, name, username }) => {
+export const PeopleCard = ({ name, username,person }) => {
+  const {picturePath,firstName,lastName,}=person;
+
   const [isFollowing, setIsFollowing] = useState(false);
 
+  useEffect(() => {
+  
+
+      if ( person.followers.includes(localStorage.getItem("user_id"))) {
+        setIsFollowing(true);
+      }
+    
+  }, []);
 
   const handleFollowToggle = async () => {
-    const friendId = id;
+    const friendId = person._id;
     try {
       const res = await followUser({ friendId });
       if (res) {
@@ -18,34 +29,38 @@ export const PeopleCard = ({ id, profileImage, name, username }) => {
       console.error("Error toggling follow status:", error);
     }
   };
+
+  const navigate = useNavigate();
+  const navigateToProfile = () => {
+    navigate(`/profile/${person._id}`);
+  };
   return (
-    <div>
-      <Link to={`profile/${id}`}>
-      <div className="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-      >
+    <div className="max-w-[272px] mb-2">
+      <div className="flex items-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
         <img
-          src={profileImage}
+          src={baseImgUrl+picturePath}
           alt={name}
-          className="w-12 h-12 rounded-full object-cover"
+          className="w-12 h-12 rounded-full object-cover cursor-pointer"
+          onClick={navigateToProfile}
         />
-        <div className="ml-3 flex-grow">
+        <div className="ml-3 flex-grow cursor-pointer" onClick={navigateToProfile}>
           <h3 className="font-semibold text-gray-800 dark:text-white">
-            {name}
+            {firstName+" " + lastName}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            @{username}
+            @{firstName}
           </p>
         </div>
         <button
-          className={` px-3 py-1 rounded-full text-blue-500  dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200
-            ${isFollowing
-              ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-              : "bg-blue-500 text-white hover:bg-blue-600 dark:text-white dark:bg-blue-600 dark:hover:bg-blue-700"
-          } transition-colors duration-200`}
-          
+          className={` px-3 py-1 rounded-full text-blue-500  dark:text-blue-400  transition-colors duration-200
+            ${
+              isFollowing
+                ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                : "bg-blue-500 text-white hover:bg-blue-600 dark:text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+            } transition-colors duration-200`}
           onClick={handleFollowToggle}
         >
-         {isFollowing ? (
+          {isFollowing ? (
             <>
               <FaUserCheck size={17} />
             </>
@@ -56,8 +71,6 @@ export const PeopleCard = ({ id, profileImage, name, username }) => {
           )}
         </button>
       </div>
-      </Link>
-
     </div>
   );
 };

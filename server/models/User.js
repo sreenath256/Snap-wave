@@ -40,6 +40,11 @@ const UserSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+    ],savedPost: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post",
+      },
     ],
     location: String,
     occupation: String,
