@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000', // Your base URL here
+  baseURL: 'https://snap-wave.vercel.app', // Your base URL here
   headers: {
     'Content-Type': 'application/json', // Default content type
   },

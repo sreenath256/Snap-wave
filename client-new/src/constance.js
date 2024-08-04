@@ -1,2 +1,2 @@
 export const baseImgUrl =
-  "http://localhost:5000";
+  "https://snap-wave.vercel.app";
