@@ -60,11 +60,11 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data:", userData);
     try {
       setLoading(true);
       const userId = localStorage.getItem("user_id");
       const combainedData = { ...userData, userId };
+      console.log("Form data:", combainedData);
 
       const response = await api.patch("/edit-profile", combainedData, {
         headers: {
