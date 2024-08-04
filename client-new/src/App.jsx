@@ -48,7 +48,8 @@ function App() {
       dispatch(setLoading(true));
       try {
         const response = await api.get(`/users/${userId}`);
-
+        console.log(response);
+        
         dispatch(setUser(response.data));
       } catch (err) {
         dispatch(setError(err.toString()));
