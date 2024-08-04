@@ -117,7 +117,10 @@ const Post = ({ post }) => {
   };
 
   return (
+    <>
+ 
     <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto relative">
+   
       {userId._id !== localStorage.getItem("user_id") && (
         <button
           onClick={handleFollowToggle}
@@ -238,6 +241,8 @@ const Post = ({ post }) => {
         </div>
       </div>
     </div>
+    </>
+
   );
 };
 

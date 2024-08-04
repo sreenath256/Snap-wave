@@ -30,7 +30,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
-      <div className="p-4 md:w-3/4 max-w-3xl mx-auto">
+      <div className="p-4 w-full mx-auto">
         <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-gray-100">
           Your Feed
         </h1>

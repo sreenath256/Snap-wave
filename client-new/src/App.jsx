@@ -15,6 +15,7 @@ import ProfilePage from "./pages/Profile/Profile";
 import PeopleList from "./pages/PeopleList/PeopleList";
 import SearchPage from "./pages/Search/SearchPage";
 import SavedPost from "./pages/SavedPost/SavedPost";
+import EditProfile from "./pages/EditProfile/EditProfile";
 
 function App() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ function App() {
     const savedPreference = localStorage.getItem("darkMode");
     return savedPreference === "true" || false;
   });
+  console.log(isLoading);
 
   useEffect(() => {
     if (darkMode) {
@@ -41,6 +43,8 @@ function App() {
     if (!userId) return;
 
     const fetchUserDetails = async () => {
+      // console.log(userId);
+
       dispatch(setLoading(true));
       try {
         const response = await api.get(`/users/${userId}`);
@@ -68,18 +72,19 @@ function App() {
       {/* <Navbar /> */}
       <Toaster />
 
-      <div className="mt-0">
+      <div className="mt-0 ">
         <Routes>
           {user ? (
             <>
               <Route element={<RootLayout />}>
                 <Route index path="/home" element={<Home />} />
                 <Route path="/create-post" element={<CreatePost />} />
-                <Route path="/profile/:id" element={<ProfilePage />} />
                 <Route path="/search" element={<SearchPage />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/profile/:id" element={<ProfilePage />} />
                 <Route path="/peoples" element={<PeopleList />} />
                 <Route path="/saved" element={<SavedPost />} />
-                <Route  path="*" element={<Home />} />
+                <Route path="*" element={<Navigate to="/home" />} />
                 {/* <Route path="*" element={<Navigate to="/home" />} /> */}
               </Route>
             </>
@@ -88,7 +93,7 @@ function App() {
               <Route path="/sign-up" element={<SignUp />} />
               <Route path="/sign-in" element={<SignIn />} />
               {/* <Route path="/create-post" element={<CreatePost />} /> */}
-              <Route path="*" element={<Navigate to="/sign-up" />} />
+              <Route path="*" element={<Navigate to="/sign-in" />} />
             </Route>
           )}
         </Routes>

@@ -33,7 +33,7 @@ const SavedPostsPage = () => {
   }
 
   return (
-    <div className=" dark:bg-gray-900 min-h-screen p-4">
+    <div className=" dark:bg-gray-900 min-h-screen p-4 w-full max-w-3xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Saved Posts</h1>
       
       {savedPosts.length === 0 ? (

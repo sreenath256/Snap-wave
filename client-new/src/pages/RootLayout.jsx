@@ -15,12 +15,12 @@ const RootLayout = () => {
         <main className="flex-1 flex justify-center overflow-y-auto  bg-white dark:bg-gray-900 ">
           <Outlet />
         </main>
-        <aside className="hidden lg:block w-80">
+        <aside className="hidden lg:block w-80 ">
           <RightSidebar />
         </aside>
       </div>
       <div className="w-full">
-        <Bottombar />
+        {/* <Bottombar /> */}
       </div>
     </div>
   );

@@ -5,19 +5,23 @@ import {
   FaMapMarkerAlt,
   FaBriefcase,
   FaCalendarAlt,
+  FaUserCheck,
+  FaUserPlus,
 } from "react-icons/fa";
 import api from "../../utils/axios";
 import Loading from "../../components/Loading/Loading";
 import Post from "../../components/Cards/Post";
 import { baseImgUrl } from "../../constance";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { PeopleCard } from "../../components/Cards/PeopleCard";
+import { followUser } from "../../utils/followUser";
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState("posts");
   const [isLoading, setIsLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState();
 
   const { id } = useParams();
   useEffect(() => {
@@ -27,8 +31,17 @@ const ProfilePage = () => {
 
         const userResponse = await api.get(`/users/${id}`);
         const postsResponse = await api.get(`/posts/${id}/posts`);
+        console.log(userResponse);
+
         setUser(userResponse.data);
         setPosts(postsResponse.data);
+        if (
+          userResponse.data.followers.some(
+            (item) => item._id === localStorage.getItem("user_id")
+          )
+        ) {
+          setIsFollowing(true);
+        }
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -38,6 +51,18 @@ const ProfilePage = () => {
 
     fetchUserData();
   }, [id]);
+
+  const handleFollowToggle = async () => {
+    const friendId = user._id;
+    try {
+      const res = await followUser({ friendId });
+      if (res) {
+        setIsFollowing(!isFollowing);
+      }
+    } catch (error) {
+      console.error("Error toggling follow status:", error);
+    }
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -52,7 +77,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
+    <div className="max-w-4xl w-full mx-auto p-4  ">
       <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         <div className="relative h-48 bg-blue-500">
           <img
@@ -121,10 +146,39 @@ const ProfilePage = () => {
               <div className="text-gray-600 dark:text-gray-400">Following</div>
             </div>
           </div>
+          {user._id != localStorage.getItem("user_id") ? (
+            <button
+              onClick={handleFollowToggle}
+              className={` px-5 py-1 mt-2 rounded-xl text-base font-medium ${
+                isFollowing
+                  ? "bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                  : "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+              } transition-colors duration-200`}
+            >
+              {isFollowing ? (
+                <>
+                  <FaUserCheck className="inline-block mr-1" />
+                  Following
+                </>
+              ) : (
+                <>
+                  <FaUserPlus className="inline-block mr-1" />
+                  Follow
+                </>
+              )}
+            </button>
+          ) : (
+
+            <button className="px-5 py-1 mt-2 rounded-xl text-base font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
+             <Link to='/edit-profile'>
+              Edit profile
+             </Link>
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-8  pb-40 ">
         <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
           <button
             className={`pb-2 px-4 ${
@@ -160,31 +214,44 @@ const ProfilePage = () => {
 
         {activeTab === "posts" && (
           <div className="space-y-6">
-            {posts.map((post) => (
-              <Post key={post._id} post={post} />
-            ))}
+            {posts.length === 0 ? (
+              <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto text-center">
+                <p className="text-gray-800 dark:text-gray-200">No posts yet</p>
+              </div>
+            ) : (
+              posts.map((post) => <Post key={post._id} post={post} />)
+            )}
           </div>
         )}
 
         {activeTab === "followers" && (
           <div className="space-y-4">
-            {
-              user.followers.map((follower)=>(
-                <PeopleCard key={follower._id} person={follower}/>
-                // console.log(follower)
-                
+            {user.followers.length === 0 ? (
+              <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto text-center">
+                <p className="text-gray-800 dark:text-gray-200">
+                  No followers yet
+                </p>
+              </div>
+            ) : (
+              user.followers.map((followers) => (
+                <PeopleCard key={followers._id} person={followers} />
               ))
-            }
+            )}
           </div>
-        )}{activeTab === "following" && (
+        )}
+        {activeTab === "following" && (
           <div className="space-y-4">
-            {
-              user.following.map((followee)=>(
-                <PeopleCard key={followee._id} person={followee}/>
-                // console.log(follower)
-                
+            {user.following.length === 0 ? (
+              <div className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl p-6 mb-6 max-w-2xl mx-auto text-center">
+                <p className="text-gray-800 dark:text-gray-200">
+                  No following yet
+                </p>
+              </div>
+            ) : (
+              user.following.map((following) => (
+                <PeopleCard key={following._id} person={following} />
               ))
-            }
+            )}
           </div>
         )}
       </div>
