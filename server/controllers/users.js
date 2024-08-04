@@ -46,14 +46,16 @@ export const getSuggestUser = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id).select("-password").populate({
-      path: "followers", 
-      select: "firstName lastName picturePath followers", 
-    })
-    .populate({
-      path: "following", // Populate the comments field
-      select: "firstName lastName picturePath followers", 
-    })
+    const user = await User.findById(id)
+      .select("-password")
+      .populate({
+        path: "followers",
+        select: "firstName lastName picturePath followers",
+      })
+      .populate({
+        path: "following", // Populate the comments field
+        select: "firstName lastName picturePath followers",
+      });
     res.status(200).json(user);
   } catch (err) {
     res.status(404).json({ message: err.message });
@@ -99,26 +101,25 @@ export const getUserFriends = async (req, res) => {
 export const getSavedPost = async (req, res) => {
   try {
     const { id } = req.params;
-    const user = await User.findById(id)
-      .populate({
-        path: 'savedPost',
-        populate: [
-          {
-            path: 'userId',
-            select: 'firstName lastName picturePath followers',
+    const user = await User.findById(id).populate({
+      path: "savedPost",
+      populate: [
+        {
+          path: "userId",
+          select: "firstName lastName picturePath followers",
+        },
+        {
+          path: "comments",
+          populate: {
+            path: "userId",
+            select: "firstName lastName picturePath",
           },
-          {
-            path: 'comments',
-            populate: {
-              path: 'userId',
-              select: 'firstName lastName picturePath',
-            },
-          }
-        ]
-      });
+        },
+      ],
+    });
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
     res.status(200).json(user);
   } catch (err) {
@@ -177,7 +178,7 @@ export const savePost = async (req, res) => {
   try {
     const { postId, userId } = req.body;
     const user = await User.findById(userId);
-    if (!user ) {
+    if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
@@ -185,17 +186,50 @@ export const savePost = async (req, res) => {
       user.savedPost = user.savedPost.filter(
         (savedPostid) => savedPostid.toString() !== postId
       );
-      
     } else {
-    
       user.savedPost.push(postId);
     }
-
 
     await user.save();
 
     res.status(200).json(user);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const editProfile = async (req, res) => {
+  console.log("Loged from edit profile");
+
+  try {
+    const { firstName, lastName, company, location, occupation, bio, userId } =
+      req.body;
+
+    const user = await User.findById(userId);
+    console.log(req.body);
+    
+    if (!user) return res.status(404).json({ msg: "User not found." });
+
+    const updateData = {firstName, lastName, company, location, occupation, bio};
+
+    if (req.files) {
+      if (req.files.picturePath) {
+        updateData.picturePath = `/assets/${req.files.picturePath[0].originalname}`;
+      }
+      if (req.files.coverPicture) {
+        updateData.coverPicture = `/assets/${req.files.coverPicture[0].originalname}`;
+      }
+    }
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+      new: true,
+    }).select("-password");
+
+
+    
+    const returnUser = await User.findById(userId).select("-password");
+
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

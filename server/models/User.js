@@ -40,16 +40,29 @@ const UserSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
-    ],savedPost: [
+    ],
+    savedPost: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Post",
       },
     ],
-    location: String,
+    location: {
+      type: String,
+      default:''
+    },
     occupation: String,
     viewedProfile: Number,
     impressions: Number,
+    coverPicture: {
+      type: String,
+      default:""
+    },
+    bio:{
+      type:String,
+      default:""
+
+    }
   },
   { timestamps: true }
 );

@@ -1,2 +1,2 @@
 export const baseImgUrl =
-  "https://snap-wave.vercel.app";
+  "https://snap-wave-production.up.railway.app";
