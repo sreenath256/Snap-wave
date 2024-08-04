@@ -40,7 +40,10 @@ function App() {
     // Save dark mode preference to local storage
     localStorage.setItem("darkMode", darkMode);
 
-    if (!userId) return;
+    if (!userId) {
+      dispatch(setLoading(false));
+      return;
+    }
 
     const fetchUserDetails = async () => {
       // console.log(userId);
@@ -49,12 +52,13 @@ function App() {
       try {
         const response = await api.get(`/users/${userId}`);
         console.log(response);
-        
+
         dispatch(setUser(response.data));
       } catch (err) {
         dispatch(setError(err.toString()));
       } finally {
         dispatch(setLoading(false));
+        console.log("from finally");
       }
     };
 
