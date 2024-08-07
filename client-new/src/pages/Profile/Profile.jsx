@@ -7,6 +7,7 @@ import {
   FaCalendarAlt,
   FaUserCheck,
   FaUserPlus,
+  FaSpinner,
 } from "react-icons/fa";
 import api from "../../utils/axios";
 import Loading from "../../components/Loading/Loading";
@@ -65,7 +66,9 @@ const ProfilePage = () => {
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <div className="flex justify-center items-center h-64">
+    <FaSpinner className="animate-spin text-center text-4xl text-blue-500 dark:text-blue-400" />
+  </div>
   }
 
   if (!user) {
@@ -168,11 +171,8 @@ const ProfilePage = () => {
               )}
             </button>
           ) : (
-
             <button className="px-5 py-1 mt-2 rounded-xl text-base font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">
-             <Link to='/edit-profile'>
-              Edit profile
-             </Link>
+              <Link to="/edit-profile">Edit profile</Link>
             </button>
           )}
         </div>

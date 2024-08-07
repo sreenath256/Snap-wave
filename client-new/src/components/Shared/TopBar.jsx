@@ -1,32 +1,47 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaMoon, FaSun, FaSignOutAlt } from "react-icons/fa";
-import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import {
+  FaMoon,
+  FaSun,
+  FaSignOutAlt,
+  FaBars,
+  FaTimes,
+  FaUser,
+} from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
 import { clearUser } from "../../redux/userSlice";
+import { baseImgUrl } from "../../constance";
 
 const TopBar = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dispatch = useDispatch();
 
+  const user = useSelector((state) => state.user.user);
+
   useEffect(() => {
-    if (localStorage.getItem("darkMode") === true) {
-      setIsDarkMode(false);
+    if (localStorage.getItem("darkMode") === "true") {
+      setIsDarkMode(true);
+      document.documentElement.classList.add("dark");
     }
   }, []);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    if (isDarkMode) {
+    if (!isDarkMode) {
       document.documentElement.classList.add("dark");
     } else {
       document.documentElement.classList.remove("dark");
     }
-    localStorage.setItem("darkMode", isDarkMode);
+    localStorage.setItem("darkMode", !isDarkMode);
   };
 
   const handleLogout = () => {
     dispatch(clearUser());
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   return (
@@ -40,35 +55,85 @@ const TopBar = () => {
                 <span className="text-gray-700 dark:text-gray-300">Wave</span>
               </span>
             </Link>
-            <div className="hidden md:block"></div>
           </div>
-          <div className="flex items-center">
+          <div className="hidden md:flex items-center">
+           
             <button
               onClick={toggleDarkMode}
-              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none  focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+              className="ml-4 p-2 rounded-full text-gray-600 dark:text-gray-300  hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200"
             >
               {isDarkMode ? <FaSun /> : <FaMoon />}
             </button>
             <button
               onClick={handleLogout}
-              className="ml-4 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+              className="ml-4 p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200"
             >
               <FaSignOutAlt />
             </button>
+            
           </div>
+          <div className="md:hidden">
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white transition-colors duration-200"
+            >
+              <img
+                src={
+                  baseImgUrl + (user.picturePath || "/assets/profile-image.png")
+                }
+                alt="Profile"
+                className="w-6 h-6 object-cover rounded-full"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div
+        className={`md:hidden absolute z-50 bg-white outline-none dark:bg-gray-800 shadow-md w-full overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? "max-h-64" : "max-h-0"
+        }`}
+      >
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 outline-none ">
+          <Link
+            to={`/profile/${user._id}`}
+            className="text-gray-600 flex items-center  dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700  px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
+          >
+            {" "}
+            <FaUser className="mr-2 " />
+            Profile
+          </Link>
+          <button
+            onClick={toggleDarkMode}
+            className="w-full text-left text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200"
+          >
+            {isDarkMode ? (
+              <FaSun className="mr-2" />
+            ) : (
+              <FaMoon className="mr-2" />
+            )}
+            {isDarkMode ? "Light Mode" : "Dark Mode"}
+          </button>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200"
+          >
+            <FaSignOutAlt className="mr-2" />
+            Logout
+          </button>
         </div>
       </div>
     </nav>
   );
 };
 
-const NavLink = ({ to, icon, text }) => (
+const NavLink = ({ to, text }) => (
   <Link
     to={to}
-    className="text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+    className="text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200"
   >
-    {icon}
-    <span className="ml-2">{text}</span>
+    {text}
   </Link>
 );
 

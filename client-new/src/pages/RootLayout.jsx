@@ -19,8 +19,8 @@ const RootLayout = () => {
           <RightSidebar />
         </aside>
       </div>
-      <div className="w-full">
-        {/* <Bottombar /> */}
+      <div className="w-full md:hidden">
+        <Bottombar />
       </div>
     </div>
   );

@@ -7,8 +7,6 @@ export const followUser = async ({  friendId }) => {
   try {
     const userId = localStorage.getItem("user_id");
     const response = await api.patch(`/users/${userId}/${friendId}`);
-    // Handle response here
-    toast.success("User Following now");
     return response;
   } catch (error) {
     console.error("Error following user:", error);
